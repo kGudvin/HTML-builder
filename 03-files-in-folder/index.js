@@ -1,21 +1,21 @@
-const fs = require('fs');
+const fs = require('fs/promises');
 const path = require('path');
 
-try {
-  const folderPath = path.join(__dirname, 'secret-folder');
-
-  const files = fs.readdirSync(folderPath, { withFileTypes: true });
-
-  files.forEach((file) => {
-    if (file.isFile()) {
-      const filePath = path.join(folderPath, file.name);
-      const fileStats = fs.statSync(filePath);
-      const fileName = path.parse(file.name).name;
-      const fileExtension = path.extname(file.name).slice(1);
-      const fileSizeInKB = (fileStats.size / 1024).toFixed(3);
-      console.log(`${fileName} - ${fileExtension} - ${fileSizeInKB}kb`);
+(async () => {
+  try {
+    const folderPath = path.join(__dirname, 'secret-folder');
+    const files = await fs.readdir(folderPath, { withFileTypes: true });
+    for (const file of files) {
+      if (file.isFile()) {
+        const filePath = path.join(folderPath, file.name);
+        const fileStatistic = await fs.stat(filePath);
+        const fileName = path.parse(file.name).name;
+        const fileExtension = path.extname(file.name).slice(1);
+        const fileSizeKb = (fileStatistic.size / 1024).toFixed(2);
+        console.log(`${fileName} - ${fileExtension} - ${fileSizeKb}kb`);
+      }
     }
-  });
-} catch (error) {
-  console.error('Error reading the folder:', error.message);
-}
+  } catch (error) {
+    console.error('Error reading the folder:', error.message);
+  }
+})();
